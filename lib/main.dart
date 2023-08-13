@@ -37,36 +37,60 @@ class MyHomePage extends StatelessWidget {
       ),
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       body: Center(
-        child: BlocBuilder<CounterCubit, CounterState>(builder: (context, state) {
-          return state.arrData.isNotEmpty ?ListView.builder(
-              itemCount: state.arrData.length,
-              itemBuilder: (_, index) {
-                return ListTile(
-                  leading: Text('${index + 1}'),
-                  title: Text('${state.arrData[index]['title']}'),
-                  subtitle: Text('${state.arrData[index]['desc']}'),
-                  trailing: InkWell(
-                    onTap: (){
-                      context.read<CounterCubit>().deleteData(index);
-                      //BlocProvider.of<CounterCubit>(context).deleteData(index);
-                    },
-                      child: Icon(Icons.delete,color: Colors.red,)),
-                );
-              }
-              ) : Center(child: Text('No Data Fuond!!'),
-          );
+        child:
+            BlocBuilder<CounterCubit, CounterState>(builder: (context, state) {
+          if (state.isLoading) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (state.isError) {
+            return Center(
+              child: Text(
+                state.errorMsg,
+                style: TextStyle(fontSize: 25),
+              ),
+            );
+          } else {
+            return state.arrData.isNotEmpty
+                ? ListView.builder(
+                    itemCount: state.arrData.length,
+                    itemBuilder: (_, index) {
+                      return ListTile(
+                        leading: Text('${index + 1}'),
+                        title: Text('${state.arrData[index]['title']}'),
+                        subtitle: Text('${state.arrData[index]['desc']}'),
+                        trailing: InkWell(
+                            onTap: () {
+                              context.read<CounterCubit>().deleteData(index);
+                              //BlocProvider.of<CounterCubit>(context).deleteData(index);
+                            },
+                            child: Icon(
+                              Icons.delete,
+                              color: Colors.red,
+                            )),
+                      );
+                    })
+                : Center(
+                    child: Text('No Data Fuond!!'),
+                  );
+          }
         }),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
+          context.read<CounterCubit>().addData({
+            'title': "Hallo",
+            'desc': "How are you",
+          });
+
+          /*Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => SecondPage(),
-              ));
+              ));*/
         },
         tooltip: 'Next Page',
-        child: const Icon(Icons.arrow_forward_ios),
+        child: const Icon(Icons.add),
       ),
     );
   }
